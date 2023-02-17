@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Three.js Sun and Mercury with Mouse Control and Zoom Slider</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/loaders/FontLoader.js"></script>
+  </head>
+  <body>
+    <div>
+      <input type="range" min="0" max="100" value="50" id="zoomSlider" />
+    </div>
+
+    <script>
+      const kmPerPixel = 13900;
+
+      const sunRadiusPx = 695508 / kmPerPixel;
+      const planets = {
+        "mercury": {
+          "radius": 2439,
+          "orbit": 57909050
+        },
+        "venus": {
+          "radius": 6051,
+          "orbit": 108208930
+        },
+        "earth": {
+          "radius": 6371,
+          "orbit": 149598261
+        },
+        "mars": {
+          "radius": 3389,
+          "orbit": 227943820
+        },
+        "jupiter": {
+          "radius": 69911,
+          "orbit": 778340821
+        },
+        "saturn": {
+          "radius": 58232,
+          "orbit": 1427034400
+        },
+        "uranus": {
+          "radius": 25362,
+          "orbit": 2870658186
+        },
+        "neptune": {
+          "radius": 24622,
+          "orbit": 4498396441
+        },
+        "pluto": {
+          "radius": 1188,
+          "orbit": 5906380000
+        }
+      }
+
+      // Set up the scene, camera, and renderer
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 100000000000000000);
+      camera.position.z = 1000;
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Create a sphere with a diameter of 100 pixels representing the Sun
+      const sunGeometry = new THREE.SphereGeometry(sunRadiusPx, 16, 16);
+      const sunMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 2, sizeAttenuation: false });
+      const sun = new THREE.Points(sunGeometry, sunMaterial);
+      // const fontLoader = new THREE.FontLoader();
+      // fontLoader.load('/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+      //   const textGeometry = new THREE.TextGeometry('Sun', {
+      //     font: font,
+      //     size: 10,
+      //     height: 1,
+      //     curveSegments: 12,
+      //     bevelEnabled: false
+      //   });
+      //   // Create a Mesh object and position it above the sun mesh
+      //   const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      //   const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+      //   textMesh.position.set(0, 60, 0);
+      //   sun.add(textMesh);
+      // });
+      scene.add(sun);
+      for (const key in planets) {
+        const planet = planets[key];
+        drawPlanet(planet.radius, planet.orbit);
+      }
+      // Set up mouse controls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+      // Set up zoom slider
+      const zoomSlider = document.getElementById('zoomSlider');
+
+      function drawPlanet(radius, orbitalRadius) {
+        // Create a sphere representing Mercury, scaled to the correct size and distance
+        const mercuryGeometry = new THREE.SphereGeometry(radius/kmPerPixel, 16, 16);
+        const mercuryMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1, sizeAttenuation: false });
+        const mercury = new THREE.Points(mercuryGeometry, mercuryMaterial);
+        mercury.position.x = orbitalRadius/kmPerPixel;
+        scene.add(mercury);
+      }
+      // Animate the scene
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    </script>
+  </body>
+</html>
